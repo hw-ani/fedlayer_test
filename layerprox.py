@@ -149,6 +149,10 @@ def build_model(n_classes):
 
 
 def group_key(name):
+    # 컴파일된 모델의 접두사 제거
+    if name.startswith("_orig_mod."):
+        name = name[10:]
+        
     parts = name.split(".")
     if parts[0].startswith("layer"):
         return ".".join(parts[:2])
@@ -209,11 +213,15 @@ def compute_mu_per_group(model, global_state, prev_state, loader, cfg, device,
         dv = _flatten_group(dw,    names)
         dv_norm = dv.norm().item()
         gv_norm = gv.norm().item()
-        if dv_norm < 1e-12 or gv_norm < 1e-12:
-            delta[g] = 1.0
+        # === 크기(Magnitude) 기반 vs 방향(Cosine) 기반 분기 ===
+        if cfg.get("use_magnitude", False):
+            delta[g] = gv_norm  # 그래디언트의 크기 자체를 이질성 지표로 사용
         else:
-            cos      = F.cosine_similarity(gv.unsqueeze(0), dv.unsqueeze(0)).item()
-            delta[g] = 1.0 - cos
+            if dv_norm < 1e-12 or gv_norm < 1e-12:
+                delta[g] = 1.0
+            else:
+                cos = F.cosine_similarity(gv.unsqueeze(0), dv.unsqueeze(0)).item()
+                delta[g] = 1.0 - cos
 
     if not cfg["per_layer"]:
         mean_d = float(np.mean(list(delta.values())))
@@ -253,34 +261,38 @@ def local_train(model, global_state, mu_per_group, loader, cfg, device,
 
     opt = torch.optim.SGD(model.parameters(), lr=cfg["lr"],
                           momentum=cfg["momentum"], weight_decay=cfg["weight_decay"])
+    scaler = torch.amp.GradScaler('cuda')
     prox_params = [(n, p, mu_per_param[n])
                    for n, p in model.named_parameters() if mu_per_param[n] > 0]
 
     printed_debug = False
     for epoch in range(cfg["local_epochs"]):
         for x, y in loader:
-            x, y = x.to(device), y.to(device)
+            x, y = x.to(device, non_blocking=True), y.to(device, non_blocking=True)
             opt.zero_grad(set_to_none=True)
             loss = F.cross_entropy(model(x), y)
 
-            if cfg["method"] != "fedavg" and prox_params:
-                prox = sum(mu * torch.sum((p - anchor[n]) ** 2)
-                           for n, p, mu in prox_params)
-                # -------------------------------------------- DEBUG
-                if debug and not printed_debug:
-                    ce_val   = loss.item()
-                    prox_val = (0.5 * prox).item()
-                    print(f"\n[DEBUG local_train r={_round} cid={_cid} epoch=0 batch=0]")
-                    print(f"  CE loss   = {ce_val:.4f}")
-                    print(f"  Prox term = {prox_val:.4f}  (0.5 * Σ µ_l||p-anchor||²)")
-                    print(f"  Ratio prox/CE = {prox_val / max(ce_val, 1e-8):.3f}")
-                    print(f"  # prox params = {len(prox_params)}")
-                    printed_debug = True
-                # ---------------------------------------------
-                loss = loss + 0.5 * prox
+            with torch.amp.autocast(device_type='cuda', dtype=torch.float16):
+                loss = F.cross_entropy(model(x), y)
+                if cfg["method"] != "fedavg" and prox_params:
+                    prox = sum(mu * torch.sum((p - anchor[n]) ** 2)
+                            for n, p, mu in prox_params)
+                    # -------------------------------------------- DEBUG
+                    if debug and not printed_debug:
+                        ce_val   = loss.item()
+                        prox_val = (0.5 * prox).item()
+                        print(f"\n[DEBUG local_train r={_round} cid={_cid} epoch=0 batch=0]")
+                        print(f"  CE loss   = {ce_val:.4f}")
+                        print(f"  Prox term = {prox_val:.4f}  (0.5 * Σ µ_l||p-anchor||²)")
+                        print(f"  Ratio prox/CE = {prox_val / max(ce_val, 1e-8):.3f}")
+                        print(f"  # prox params = {len(prox_params)}")
+                        printed_debug = True
+                    # ---------------------------------------------
+                    loss = loss + 0.5 * prox
 
-            loss.backward()
-            opt.step()
+            scaler.scale(loss).backward()
+            scaler.step(opt)
+            scaler.update()
 
     return {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
 
@@ -338,6 +350,8 @@ def run_fl(cfg, data_root="./data"):
                               num_workers=nw, pin_memory=True)
 
     model        = build_model(n_classes).to(device)
+    if hasattr(torch, 'compile'):
+        model = torch.compile(model) # 모델 컴파일 (첫 라운드만 조금 걸리고 이후 훨씬 빠름)
     global_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
     prev_state   = None
     rng          = np.random.default_rng(cfg["seed"])
@@ -348,13 +362,18 @@ def run_fl(cfg, data_root="./data"):
     for r in range(cfg["rounds"]):
         selected = rng.choice(cfg["n_clients"], size=n_select, replace=False)
         client_states, weights = [], []
+
+        # === 속도 최적화: 서버 상태를 라운드 시작 시 한 번만 GPU로 이동 ===
+        global_state_gpu = {k: v.to(device, non_blocking=True) for k, v in global_state.items()}
+        prev_state_gpu = {k: v.to(device, non_blocking=True) for k, v in prev_state.items()} if prev_state is not None else None
+
         for cid in selected:
             loader = client_loaders[cid]
             if len(loader.dataset) == 0:
                 continue
-            mu  = compute_mu_per_group(model, global_state, prev_state,
+            mu  = compute_mu_per_group(model, global_state_gpu, prev_state_gpu,
                                        loader, cfg, device, _round=r, _cid=cid)
-            ns  = local_train(model, global_state, mu, loader, cfg, device,
+            ns  = local_train(model, global_state_gpu, mu, loader, cfg, device,
                               _round=r, _cid=cid)
             client_states.append(ns)
             weights.append(client_sizes[cid])
@@ -378,24 +397,32 @@ def run_fl(cfg, data_root="./data"):
 if __name__ == "__main__":
     base = default_config()
     base.update(
-        n_clients=10, rounds=25, local_epochs=5,
-        alpha=0.1, eval_every=5, debug=True,
+        n_clients=10, rounds=100, local_epochs=5, 
+        eval_every=5, debug=False, # 본 실험이므로 debug는 False
     )
 
-    # Three targeted runs to diagnose the anomaly.
-    # Expected if code is correct:
-    #   fedprox  mu=0.01  →  ~0.72   (sweet spot, reference)
-    #   layerprox mu=0.01 a=0.01 → ~0.70  (flat gate ≈ FedProx µ=0.005)
-    #   layerprox mu=0.1  a=2.0  →  ~0.67  (best LayerProx so far)
-    # If layerprox a=0.01 gives ~0.60 again, the debug prints will show why.
+    configs = []
+    # 3가지 데이터 이질성 환경과 3가지 시드(Seed)
+    for alpha in [0.1, 0.5, 100]:
+        for seed in [0, 1, 2]:
+            
+            # 1. FedAvg
+            configs.append(dict(base, method="fedavg", alpha=alpha, seed=seed))
+            
+            # 2. FedProx (우리의 비교 기준 - 아까 찾은 스윗스팟 0.01)
+            configs.append(dict(base, method="fedprox", mu_base=0.01, alpha=alpha, seed=seed))
+            
+            # 3. LayerProx (Cosine 기반) - 공정 비교를 위해 mu_base=0.01, sigmoid_alpha=5.0
+            configs.append(dict(base, method="layerprox", mu_base=0.01, sigmoid_alpha=5.0, 
+                                use_magnitude=False, alpha=alpha, seed=seed))
+            
+            # 4. LayerProx (Magnitude 기반) - 크기값이 크므로 sigmoid_alpha를 1.0으로 낮춤
+            configs.append(dict(base, method="layerprox", mu_base=0.01, sigmoid_alpha=1.0, 
+                                use_magnitude=True, alpha=alpha, seed=seed))
 
-    configs = [
-        dict(base, method="fedprox",   mu_base=0.01, sigmoid_alpha=5.0),
-        dict(base, method="layerprox", mu_base=0.01, sigmoid_alpha=0.01),   # sanity
-        dict(base, method="layerprox", mu_base=0.1,  sigmoid_alpha=2.0),    # best so far
-    ]
-
+    # 실행 루프
+    print(f"Total configs to run: {len(configs)}")
     for c in configs:
-        out = run_fl(dict(c, seed=0), data_root="./data")
-        print(f"=> {c['method']:9s} mu={c['mu_base']} a={c['sigmoid_alpha']} "
-              f"acc={out['final_acc']:.4f}\n")
+        out = run_fl(c, data_root="./data")
+        print(f"=> {c['method']:9s} mu={c.get('mu_base','-')} mag={c.get('use_magnitude','-')} "
+              f"alpha={c['alpha']} seed={c['seed']} acc={out['final_acc']:.4f}\n")
