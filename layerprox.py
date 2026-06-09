@@ -358,13 +358,20 @@ def main():
 if __name__ == "__main__":
     base = default_config()
     base.update(n_clients=10, rounds=25, local_epochs=5, alpha=0.1, eval_every=5)
-    configs = [dict(base, method="fedavg")]
-    for mu in [0.01, 0.1, 1.0]:
+    for a in [0.01]:
+        configs = [dict(base, method="layerprox", mu_base=0.01, sigmoid_alpha=a)]
+    for a in [2.0]:
+        configs.append(dict(base, method="layerprox", mu_base=0.02, sigmoid_alpha=a))
+    for mu in [0.01]:
         configs.append(dict(base, method="fedprox", mu_base=mu))
-    for a in [2.0, 5.0]:
-        configs.append(dict(base, method="layerprox", mu_base=0.01, sigmoid_alpha=a))
-    for a in [2.0, 5.0]:
-        configs.append(dict(base, method="layerprox", mu_base=0.1, sigmoid_alpha=a))
+    
+    # configs = [dict(base, method="fedavg")]
+    # for mu in [0.01, 0.1, 1.0]:
+    #     configs.append(dict(base, method="fedprox", mu_base=mu))
+    # for a in [2.0, 5.0]:
+    #     configs.append(dict(base, method="layerprox", mu_base=0.01, sigmoid_alpha=a))
+    # for a in [2.0, 5.0]:
+    #     configs.append(dict(base, method="layerprox", mu_base=0.1, sigmoid_alpha=a))
     for s in [0, 1]:
         for c in configs:
             cfg = dict(c, seed=s)
