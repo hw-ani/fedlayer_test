@@ -196,3 +196,15 @@ W0610 00:20:49.414000 2998648 site-packages/torch/_dynamo/convert_frame.py:1676]
   round  55/100  test_acc=0.7814
   round  60/100  test_acc=0.7891
   round  65/100  test_acc=0.7843
+  round  70/100  test_acc=0.7894
+  round  75/100  test_acc=0.7864
+  round  80/100  test_acc=0.7872
+  round  85/100  test_acc=0.7921
+  round  90/100  test_acc=0.7992
+  round  95/100  test_acc=0.7942
+  round 100/100  test_acc=0.7974
+  [saved → ./results/layerprox_mu0.01_a1.0_alpha0.1_seed1.json]
+=> layerprox mu=0.01 mag=True alpha=0.1 seed=1 acc=0.7974
+
+
+[device=cuda] fedavg    µ=0.1 α_sig=5.0 dir_alpha=0.1 seed=2
