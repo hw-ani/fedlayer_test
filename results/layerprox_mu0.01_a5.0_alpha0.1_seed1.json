@@ -1,0 +1,107 @@
+{
+  "config": {
+    "method": "layerprox",
+    "dataset": "cifar10",
+    "n_clients": 10,
+    "participation": 1.0,
+    "alpha": 0.1,
+    "rounds": 100,
+    "local_epochs": 5,
+    "batch_size": 64,
+    "lr": 0.01,
+    "momentum": 0.9,
+    "weight_decay": 0.0,
+    "mu_base": 0.01,
+    "sigmoid_alpha": 5.0,
+    "per_layer": true,
+    "gate_direction": "divergent",
+    "seed": 1,
+    "eval_every": 5,
+    "num_workers": 4,
+    "debug": false,
+    "use_magnitude": false
+  },
+  "history": [
+    [
+      5,
+      0.4349
+    ],
+    [
+      10,
+      0.5774
+    ],
+    [
+      15,
+      0.6389
+    ],
+    [
+      20,
+      0.6928
+    ],
+    [
+      25,
+      0.7189
+    ],
+    [
+      30,
+      0.7259
+    ],
+    [
+      35,
+      0.748
+    ],
+    [
+      40,
+      0.7586
+    ],
+    [
+      45,
+      0.7585
+    ],
+    [
+      50,
+      0.775
+    ],
+    [
+      55,
+      0.7829
+    ],
+    [
+      60,
+      0.7943
+    ],
+    [
+      65,
+      0.7768
+    ],
+    [
+      70,
+      0.7895
+    ],
+    [
+      75,
+      0.7831
+    ],
+    [
+      80,
+      0.7985
+    ],
+    [
+      85,
+      0.7885
+    ],
+    [
+      90,
+      0.8003
+    ],
+    [
+      95,
+      0.7922
+    ],
+    [
+      100,
+      0.7949
+    ]
+  ],
+  "final_acc": 0.7949
+}
