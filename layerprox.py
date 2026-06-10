@@ -25,6 +25,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, Subset
 
+torch.set_float32_matmul_precision('high')
+
 RESULT_DIR = "./results"
 os.makedirs(RESULT_DIR, exist_ok=True)
 
