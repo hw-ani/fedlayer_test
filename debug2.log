@@ -1,0 +1,198 @@
+Total configs to run: 36
+
+[device=cuda] fedavg    µ=0.1 α_sig=5.0 dir_alpha=0.1 seed=0
+/raid/anaconda3/lib/python3.12/site-packages/torch/_inductor/compile_fx.py:321: UserWarning: TensorFloat32 tensor cores for float32 matrix multiplication available but not enabled. Consider setting `torch.set_float32_matmul_precision('high')` for better performance.
+  warnings.warn(
+  round   5/100  test_acc=0.4677
+  round  10/100  test_acc=0.6066
+  round  15/100  test_acc=0.6687
+  round  20/100  test_acc=0.7087
+  round  25/100  test_acc=0.7225
+  round  30/100  test_acc=0.7431
+  round  35/100  test_acc=0.7457
+  round  40/100  test_acc=0.7622
+  round  45/100  test_acc=0.7595
+  round  50/100  test_acc=0.7715
+  round  55/100  test_acc=0.7672
+  round  60/100  test_acc=0.7745
+  round  65/100  test_acc=0.7838
+  round  70/100  test_acc=0.7801
+  round  75/100  test_acc=0.7840
+  round  80/100  test_acc=0.7909
+  round  85/100  test_acc=0.7959
+  round  90/100  test_acc=0.7914
+  round  95/100  test_acc=0.7928
+  round 100/100  test_acc=0.7865
+  [saved → ./results/fedavg_mu0.1_a5.0_alpha0.1_seed0.json]
+=> fedavg    mu=0.1 mag=- alpha=0.1 seed=0 acc=0.7865
+
+
+[device=cuda] fedprox   µ=0.01 α_sig=5.0 dir_alpha=0.1 seed=0
+  round   5/100  test_acc=0.4650
+  round  10/100  test_acc=0.5691
+  round  15/100  test_acc=0.6785
+  round  20/100  test_acc=0.7032
+  round  25/100  test_acc=0.7189
+  round  30/100  test_acc=0.7450
+  round  35/100  test_acc=0.7473
+  round  40/100  test_acc=0.7609
+  round  45/100  test_acc=0.7626
+  round  50/100  test_acc=0.7762
+  round  55/100  test_acc=0.7754
+  round  60/100  test_acc=0.7766
+  round  65/100  test_acc=0.7887
+  round  70/100  test_acc=0.7882
+  round  75/100  test_acc=0.7888
+  round  80/100  test_acc=0.7982
+  round  85/100  test_acc=0.7937
+  round  90/100  test_acc=0.7973
+  round  95/100  test_acc=0.7935
+  round 100/100  test_acc=0.7966
+  [saved → ./results/fedprox_mu0.01_a5.0_alpha0.1_seed0.json]
+=> fedprox   mu=0.01 mag=- alpha=0.1 seed=0 acc=0.7966
+
+
+[device=cuda] layerprox µ=0.01 α_sig=5.0 dir_alpha=0.1 seed=0
+W0610 00:20:49.414000 2998648 site-packages/torch/_dynamo/convert_frame.py:1676] [0/8] torch._dynamo hit config.recompile_limit (8)
+W0610 00:20:49.414000 2998648 site-packages/torch/_dynamo/convert_frame.py:1676] [0/8]    function: 'forward' (/home/ngws/jihwanpark/fedlayer_test/layerprox.py:144)
+W0610 00:20:49.414000 2998648 site-packages/torch/_dynamo/convert_frame.py:1676] [0/8]    last reason: 0/7: GLOBAL_STATE changed: grad_mode 
+W0610 00:20:49.414000 2998648 site-packages/torch/_dynamo/convert_frame.py:1676] [0/8] To log all recompilation reasons, use TORCH_LOGS="recompiles".
+W0610 00:20:49.414000 2998648 site-packages/torch/_dynamo/convert_frame.py:1676] [0/8] To diagnose recompilation issues, see https://pytorch.org/docs/main/compile/programming_model.recompilation.html
+  round   5/100  test_acc=0.4851
+  round  10/100  test_acc=0.5938
+  round  15/100  test_acc=0.6930
+  round  20/100  test_acc=0.7221
+  round  25/100  test_acc=0.7345
+  round  30/100  test_acc=0.7345
+  round  35/100  test_acc=0.7536
+  round  40/100  test_acc=0.7526
+  round  45/100  test_acc=0.7672
+  round  50/100  test_acc=0.7786
+  round  55/100  test_acc=0.7689
+  round  60/100  test_acc=0.7890
+  round  65/100  test_acc=0.7829
+  round  70/100  test_acc=0.7854
+  round  75/100  test_acc=0.7814
+  round  80/100  test_acc=0.7887
+  round  85/100  test_acc=0.7935
+  round  90/100  test_acc=0.7955
+  round  95/100  test_acc=0.7939
+  round 100/100  test_acc=0.7958
+  [saved → ./results/layerprox_mu0.01_a5.0_alpha0.1_seed0.json]
+=> layerprox mu=0.01 mag=False alpha=0.1 seed=0 acc=0.7958
+
+
+[device=cuda] layerprox µ=0.01 α_sig=1.0 dir_alpha=0.1 seed=0
+  round   5/100  test_acc=0.4895
+  round  10/100  test_acc=0.5884
+  round  15/100  test_acc=0.6835
+  round  20/100  test_acc=0.7091
+  round  25/100  test_acc=0.7348
+  round  30/100  test_acc=0.7278
+  round  35/100  test_acc=0.7507
+  round  40/100  test_acc=0.7551
+  round  45/100  test_acc=0.7703
+  round  50/100  test_acc=0.7746
+  round  55/100  test_acc=0.7901
+  round  60/100  test_acc=0.7846
+  round  65/100  test_acc=0.7815
+  round  70/100  test_acc=0.7851
+  round  75/100  test_acc=0.7901
+  round  80/100  test_acc=0.7963
+  round  85/100  test_acc=0.8028
+  round  90/100  test_acc=0.7959
+  round  95/100  test_acc=0.8015
+  round 100/100  test_acc=0.8006
+  [saved → ./results/layerprox_mu0.01_a1.0_alpha0.1_seed0.json]
+=> layerprox mu=0.01 mag=True alpha=0.1 seed=0 acc=0.8006
+
+
+[device=cuda] fedavg    µ=0.1 α_sig=5.0 dir_alpha=0.1 seed=1
+  round   5/100  test_acc=0.4008
+  round  10/100  test_acc=0.5609
+  round  15/100  test_acc=0.6281
+  round  20/100  test_acc=0.6564
+  round  25/100  test_acc=0.6921
+  round  30/100  test_acc=0.7158
+  round  35/100  test_acc=0.7325
+  round  40/100  test_acc=0.7338
+  round  45/100  test_acc=0.7462
+  round  50/100  test_acc=0.7468
+  round  55/100  test_acc=0.7595
+  round  60/100  test_acc=0.7630
+  round  65/100  test_acc=0.7633
+  round  70/100  test_acc=0.7746
+  round  75/100  test_acc=0.7718
+  round  80/100  test_acc=0.7800
+  round  85/100  test_acc=0.7762
+  round  90/100  test_acc=0.7796
+  round  95/100  test_acc=0.7696
+  round 100/100  test_acc=0.7822
+  [saved → ./results/fedavg_mu0.1_a5.0_alpha0.1_seed1.json]
+=> fedavg    mu=0.1 mag=- alpha=0.1 seed=1 acc=0.7822
+
+
+[device=cuda] fedprox   µ=0.01 α_sig=5.0 dir_alpha=0.1 seed=1
+  round   5/100  test_acc=0.4190
+  round  10/100  test_acc=0.5751
+  round  15/100  test_acc=0.6442
+  round  20/100  test_acc=0.6618
+  round  25/100  test_acc=0.6915
+  round  30/100  test_acc=0.7259
+  round  35/100  test_acc=0.7462
+  round  40/100  test_acc=0.7360
+  round  45/100  test_acc=0.7526
+  round  50/100  test_acc=0.7621
+  round  55/100  test_acc=0.7761
+  round  60/100  test_acc=0.7652
+  round  65/100  test_acc=0.7705
+  round  70/100  test_acc=0.7645
+  round  75/100  test_acc=0.7766
+  round  80/100  test_acc=0.7728
+  round  85/100  test_acc=0.7818
+  round  90/100  test_acc=0.7884
+  round  95/100  test_acc=0.7840
+  round 100/100  test_acc=0.7859
+  [saved → ./results/fedprox_mu0.01_a5.0_alpha0.1_seed1.json]
+=> fedprox   mu=0.01 mag=- alpha=0.1 seed=1 acc=0.7859
+
+
+[device=cuda] layerprox µ=0.01 α_sig=5.0 dir_alpha=0.1 seed=1
+  round   5/100  test_acc=0.4349
+  round  10/100  test_acc=0.5774
+  round  15/100  test_acc=0.6389
+  round  20/100  test_acc=0.6928
+  round  25/100  test_acc=0.7189
+  round  30/100  test_acc=0.7259
+  round  35/100  test_acc=0.7480
+  round  40/100  test_acc=0.7586
+  round  45/100  test_acc=0.7585
+  round  50/100  test_acc=0.7750
+  round  55/100  test_acc=0.7829
+  round  60/100  test_acc=0.7943
+  round  65/100  test_acc=0.7768
+  round  70/100  test_acc=0.7895
+  round  75/100  test_acc=0.7831
+  round  80/100  test_acc=0.7985
+  round  85/100  test_acc=0.7885
+  round  90/100  test_acc=0.8003
+  round  95/100  test_acc=0.7922
+  round 100/100  test_acc=0.7949
+  [saved → ./results/layerprox_mu0.01_a5.0_alpha0.1_seed1.json]
+=> layerprox mu=0.01 mag=False alpha=0.1 seed=1 acc=0.7949
+
+
+[device=cuda] layerprox µ=0.01 α_sig=1.0 dir_alpha=0.1 seed=1
+  round   5/100  test_acc=0.4309
+  round  10/100  test_acc=0.5750
+  round  15/100  test_acc=0.6294
+  round  20/100  test_acc=0.6894
+  round  25/100  test_acc=0.7106
+  round  30/100  test_acc=0.7287
+  round  35/100  test_acc=0.7510
+  round  40/100  test_acc=0.7573
+  round  45/100  test_acc=0.7707
+  round  50/100  test_acc=0.7754
+  round  55/100  test_acc=0.7814
+  round  60/100  test_acc=0.7891
+  round  65/100  test_acc=0.7843

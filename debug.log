@@ -1,0 +1,86 @@
+
+[device=cuda] fedprox   µ=0.01 α_sig=5.0 dir_alpha=0.1 seed=0
+
+[DEBUG local_train r=0 cid=0 epoch=0 batch=0]
+  CE loss   = 3.0231
+  Prox term = 0.0000  (0.5 * Σ µ_l||p-anchor||²)
+  Ratio prox/CE = 0.000
+  # prox params = 65
+  round   5/25  test_acc=0.4500
+  round  10/25  test_acc=0.5984
+  round  15/25  test_acc=0.6888
+  round  20/25  test_acc=0.7107
+  round  25/25  test_acc=0.7381
+  [saved → ./results/fedprox_mu0.01_a5.0_alpha0.1_seed0.json]
+=> fedprox   mu=0.01 a=5.0 acc=0.7381
+
+
+[device=cuda] layerprox µ=0.01 α_sig=0.01 dir_alpha=0.1 seed=0
+
+[DEBUG r=0 warmup] µ_base=0.01 sigmoid_alpha=0.01
+  prev_state is None → µ = µ_base/2 = 0.00500 (uniform, as expected)
+
+[DEBUG local_train r=0 cid=0 epoch=0 batch=0]
+  CE loss   = 3.0231
+  Prox term = 0.0000  (0.5 * Σ µ_l||p-anchor||²)
+  Ratio prox/CE = 0.000
+  # prox params = 65
+
+[DEBUG r=1 cid=0] µ_base=0.01 sigmoid_alpha=0.01
+  group                    dw_norm     gv_norm     delta        mu
+  bn1                      0.23800     0.06972    0.9623   0.00502
+  conv1                    0.75446     0.40759    0.9605   0.00502
+  fc                       0.54251     5.85720    1.0652   0.00503
+  layer1.0                 0.91027     0.78547    1.0297   0.00503
+  layer1.1                 0.70975     0.63039    1.0002   0.00503
+  layer1.2                 0.59415     0.56100    0.9259   0.00502
+  layer2.0                 0.80543     0.93171    0.9826   0.00502
+  layer2.1                 0.72301     0.94880    0.9707   0.00502
+  layer2.2                 0.56606     0.80446    0.9906   0.00502
+  layer3.0                 0.75353     1.47750    0.9447   0.00502
+  layer3.1                 0.63442     1.80588    0.9760   0.00502
+  layer3.2                 0.53736     1.89339    0.9550   0.00502
+  → µ range: [0.00502, 0.00503]  mean=0.00502
+  round   5/25  test_acc=0.4896
+  round  10/25  test_acc=0.6015
+  round  15/25  test_acc=0.6845
+  round  20/25  test_acc=0.6978
+  round  25/25  test_acc=0.7251
+  [saved → ./results/layerprox_mu0.01_a0.01_alpha0.1_seed0.json]
+=> layerprox mu=0.01 a=0.01 acc=0.7251
+
+
+[device=cuda] layerprox µ=0.1 α_sig=2.0 dir_alpha=0.1 seed=0
+
+[DEBUG r=0 warmup] µ_base=0.1 sigmoid_alpha=2.0
+  prev_state is None → µ = µ_base/2 = 0.05000 (uniform, as expected)
+
+[DEBUG local_train r=0 cid=0 epoch=0 batch=0]
+  CE loss   = 3.0231
+  Prox term = 0.0000  (0.5 * Σ µ_l||p-anchor||²)
+  Ratio prox/CE = 0.000
+  # prox params = 65
+
+[DEBUG r=1 cid=0] µ_base=0.1 sigmoid_alpha=2.0
+  group                    dw_norm     gv_norm     delta        mu
+  bn1                      0.11645     0.07285    0.9765   0.08758
+  conv1                    0.40225     0.66363    0.9423   0.08681
+  fc                       0.29720     5.26089    0.9291   0.08651
+  layer1.0                 0.55834     1.03580    1.0018   0.08812
+  layer1.1                 0.43239     0.85920    0.9015   0.08585
+  layer1.2                 0.36250     0.74034    0.8814   0.08535
+  layer2.0                 0.47211     1.05179    0.8779   0.08527
+  layer2.1                 0.42556     1.01042    0.8982   0.08577
+  layer2.2                 0.32320     0.89442    0.9070   0.08599
+  layer3.0                 0.40538     1.47072    0.8819   0.08537
+  layer3.1                 0.34754     1.51941    0.8983   0.08577
+  layer3.2                 0.31490     1.48018    0.8792   0.08530
+  → µ range: [0.08527, 0.08812]  mean=0.08614
+  round   5/25  test_acc=0.4212
+  round  10/25  test_acc=0.5301
+  round  15/25  test_acc=0.6221
+  round  20/25  test_acc=0.6537
+  round  25/25  test_acc=0.6745
+  [saved → ./results/layerprox_mu0.1_a2.0_alpha0.1_seed0.json]
+=> layerprox mu=0.1 a=2.0 acc=0.6745
+
